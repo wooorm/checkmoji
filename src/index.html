@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset=utf8>
+<title>checkmoji</title>
+<meta property=og:title content=checkmoji>
+<meta name=viewport content=width=device-width,initial-scale=1>
+<meta name=description content="Check emoji across platforms">
+<meta property=og:description content="Check emoji across platforms">
+<meta property=og:image content=https://raw.githubusercontent.com/wooorm/checkmoji/src/screencast.gif>
+<link rel=stylesheet href=index.css>
+<main>
+  <div>
+    <header class="section highlight">
+      <h1>checkmoji</h1>
+    </header>
+    <form id=form action=# class=section>
+      <fieldset class=editor>
+        <input id=in autofocus>
+      </fieldset>
+    </form>
+    <dl id=out class="section highlight output">
+      <dt>Current platform</dt>
+      <dd id=current></dd>
+    </dl>
+    <form action=# class=section>
+      <fieldset id=options class=options>
+      </fieldset>
+    </form>
+    <footer class="section credits">
+      <p>
+        <a href=https://github.com/wooorm/checkmoji>GitHub</a>
+        •
+        Images from <a href=https://emojipedia.org>emojipedia</a>
+        •
+        Rest is <a href=https://github.com/wooorm/checkmoji/blob/src/LICENSE>MIT</a> © <a href=http://wooorm.com>@wooorm</a>
+      </p>
+    </footer>
+  </div>
+</main>
+<script src=index.js></script>
