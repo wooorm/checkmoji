@@ -18,15 +18,15 @@
     "hast-util-select": "^1.0.1",
     "hast-util-to-string": "^1.0.1",
     "postcss-cli": "^5.0.0",
-    "rehype-cli": "^4.0.0",
+    "rehype-cli": "^5.0.0",
     "rehype-parse": "^4.1.0",
     "rehype-preset-minify": "^2.0.0",
     "rehype-prevent-favicon-request": "^1.0.0",
     "request": "^2.83.0",
-    "stylelint": "^8.0.0",
+    "stylelint": "^9.0.0",
     "stylelint-config-standard": "^18.0.0",
     "unified": "^6.1.6",
-    "xo": "^0.18.0"
+    "xo": "^0.20.0"
   },
   "scripts": {
     "build:js": "browserify -p bundle-collapser/plugin src/index.js | esmangle > dest/index.js",
@@ -44,7 +44,12 @@
   },
   "xo": {
     "space": true,
-    "esnext": false
+    "esnext": false,
+    "rules": {
+      "no-var": "off",
+      "object-shorthand": "off",
+      "prefer-arrow-callback": "off"
+    }
   },
   "postcss": {
     "plugins": {

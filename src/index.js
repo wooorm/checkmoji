@@ -17,8 +17,8 @@ var defaults = ['apple', 'google', 'facebook', 'twitter'];
 
 Object.keys(platforms).forEach(each);
 
-$form.onsubmit = onsubmit;
-$input.oninput = debounce(onchange, 200);
+$form.addEventListener('submit', onsubmit);
+$input.addEventListener('input', debounce(onchange, 200));
 
 onchange();
 
@@ -49,7 +49,7 @@ function each(platform) {
   $check.type = 'checkbox';
   $check.name = 'platform';
   $check.id = platform;
-  $check.onchange = onchange;
+  $check.addEventListener('change', onchange);
 
   $label.appendChild(doc.createTextNode(platforms[platform]));
   $options.appendChild($label);
