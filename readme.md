@@ -1,4 +1,4 @@
-## checkmoji
+# checkmoji
 
 [![screencast](screencast.gif)](http://wooorm.com/checkmoji)
 

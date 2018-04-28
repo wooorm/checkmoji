@@ -1,38 +1,38 @@
-'use strict';
+'use strict'
 
-var https = require('https');
-var path = require('path');
-var fs = require('graceful-fs');
-var request = require('request');
-var concat = require('concat-stream');
-var bail = require('bail');
-var unified = require('unified');
-var html = require('rehype-parse');
-var query = require('hast-util-select');
-var toString = require('hast-util-to-string');
-var collapse = require('collapse-white-space');
-var debug = require('debug')('build');
+var https = require('https')
+var path = require('path')
+var fs = require('graceful-fs')
+var request = require('request')
+var concat = require('concat-stream')
+var bail = require('bail')
+var unified = require('unified')
+var html = require('rehype-parse')
+var query = require('hast-util-select')
+var toString = require('hast-util-to-string')
+var collapse = require('collapse-white-space')
+var debug = require('debug')('build')
 
 /* 😬 emojipedia seems to complain if we open more sockets. */
-https.globalAgent.maxSockets = 2;
+https.globalAgent.maxSockets = 2
 
-var proc = unified().use(html);
+var proc = unified().use(html)
 
 /* 🤔 random user agent to keep emojipedia happy. */
-var ua = 'Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.1';
-var root = 'https://emojipedia.org';
+var ua = 'Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.1'
+var root = 'https://emojipedia.org'
 
 /* 🤓 places we store emoji info and platforms. */
-var data = {};
-var platforms = {};
+var data = {}
+var platforms = {}
 
-debug.enabled = true;
+debug.enabled = true
 
 /* 👍 we save stuff here on exit :hackerman: */
-process.on('exit', onexit);
+process.on('exit', onexit)
 
 /* 🏃🏿‍♀️ Don’t walk into modifiers multiple times. */
-var seen = [];
+var seen = []
 
 /* 📒 Categories on https://emojipedia.org. */
 var categories = [
@@ -44,103 +44,115 @@ var categories = [
   'objects',
   'symbols',
   'flags'
-];
+]
 
 /* 🏃‍💨  fetch those categories! */
-categories.forEach(category);
+categories.forEach(category)
 
 function onexit() {
-  debug('Done! Got %s emoji!', Object.keys(data).length);
-  fs.writeFileSync(path.join('src', 'emoji.json'), JSON.stringify(data) + '\n');
-  fs.writeFileSync(path.join('src', 'platforms.json'), JSON.stringify(platforms) + '\n');
+  debug('Done! Got %s emoji!', Object.keys(data).length)
+  fs.writeFileSync(path.join('src', 'emoji.json'), JSON.stringify(data) + '\n')
+  fs.writeFileSync(
+    path.join('src', 'platforms.json'),
+    JSON.stringify(platforms) + '\n'
+  )
 }
 
 function category(category) {
-  request({
-    url: root + '/' + category + '/',
-    headers: {'User-Agent': ua}
-  }, oncategory);
+  request(
+    {
+      url: root + '/' + category + '/',
+      headers: {'User-Agent': ua}
+    },
+    oncategory
+  )
 }
 
 function oncategory(err, res, body) {
-  bail(err);
+  bail(err)
 
-  var tree = proc.parse(body);
+  var tree = proc.parse(body)
 
-  debug('Category: %s', collapse(toString(query.select('h1', tree))).trim());
+  debug('Category: %s', collapse(toString(query.select('h1', tree))).trim())
 
-  query.selectAll('.emoji-list a', tree).forEach(get);
+  query.selectAll('.emoji-list a', tree).forEach(get)
 }
 
 function get(node) {
-  var id = node.properties.href;
+  var id = node.properties.href
 
   if (seen.indexOf(id) === -1) {
-    seen.push(id);
-    setImmediate(go);
+    seen.push(id)
+    setImmediate(go)
   }
 
   function go() {
-    request({url: root + id, headers: {'User-Agent': ua}}, onemoji);
+    request({url: root + id, headers: {'User-Agent': ua}}, onemoji)
   }
 }
 
 function onemoji(err, res, body) {
-  bail(err);
+  bail(err)
 
-  var tree = proc.parse(body);
-  var modifiers = query.selectAll('.modifiers a', tree);
-  var emoji = query.select('#emoji-copy', tree).properties.value;
-  var title = query.select('h1', tree);
+  var tree = proc.parse(body)
+  var modifiers = query.selectAll('.modifiers a', tree)
+  var emoji = query.select('#emoji-copy', tree).properties.value
+  var title = query.select('h1', tree)
   var entry = {
-    id: query.select('[property="og:url"]', tree).properties.content.slice(1, -1),
+    id: query
+      .select('[property="og:url"]', tree)
+      .properties.content.slice(1, -1),
     title: collapse(toString(title.children[title.children.length - 1])).trim(),
     platforms: []
-  };
+  }
 
-  data[emoji] = entry;
+  data[emoji] = entry
 
-  debug('Emoji: %s (%s, %s)', entry.id, emoji, entry.title);
+  debug('Emoji: %s (%s, %s)', entry.id, emoji, entry.title)
 
-  query.selectAll('.vendor-list > ul > li > .vendor-container', tree).forEach(one);
+  query
+    .selectAll('.vendor-list > ul > li > .vendor-container', tree)
+    .forEach(one)
 
-  modifiers.forEach(get);
+  modifiers.forEach(get)
 
   function one(node) {
-    var platform = collapse(toString(query.select('.vendor-info', node))).trim();
-    var img = query.select('.vendor-image img', node).properties.src;
-    var pid = platform.toLowerCase();
-    var dir = path.join('src', 'image', pid);
+    var platform = collapse(toString(query.select('.vendor-info', node))).trim()
+    var img = query.select('.vendor-image img', node).properties.src
+    var pid = platform.toLowerCase()
+    var dir = path.join('src', 'image', pid)
 
-    entry.platforms.push(pid);
+    entry.platforms.push(pid)
 
     if (!(pid in platforms)) {
-      platforms[pid] = platform;
+      platforms[pid] = platform
 
       try {
-        fs.mkdirSync(dir);
+        fs.mkdirSync(dir)
       } catch (err) {
         if (err.code !== 'EEXIST') {
-          bail(err);
+          bail(err)
         }
       }
     }
 
-    setImmediate(go);
+    setImmediate(go)
 
     function go() {
-      var fp = path.join(dir, entry.id + '.png');
+      var fp = path.join(dir, entry.id + '.png')
 
-      fs.exists(fp, onexists);
+      fs.exists(fp, onexists)
 
       function onexists(exists) {
         if (!exists) {
-          request({url: img, headers: {'User-Agent': ua}}).pipe(concat(onimagebuf));
+          request({url: img, headers: {'User-Agent': ua}}).pipe(
+            concat(onimagebuf)
+          )
         }
 
         function onimagebuf(buf) {
-          debug('Emoji: %s on %s', emoji, pid);
-          fs.writeFile(fp, buf, bail);
+          debug('Emoji: %s on %s', emoji, pid)
+          fs.writeFile(fp, buf, bail)
         }
       }
     }

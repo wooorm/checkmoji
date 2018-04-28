@@ -1,127 +1,133 @@
-'use strict';
+'use strict'
 
-var doc = require('global/document');
-var debounce = require('debounce');
-var regex = require('emoji-regex')();
-var data = require('./emoji.json');
-var platforms = require('./platforms.json');
+var doc = require('global/document')
+var debounce = require('debounce')
+var regex = require('emoji-regex')()
+var data = require('./emoji.json')
+var platforms = require('./platforms.json')
 
-var $form = doc.getElementById('form');
-var $input = doc.getElementById('in');
-var $options = doc.getElementById('options');
-var $output = doc.getElementById('out');
-var $current = doc.getElementById('current');
+var $form = doc.getElementById('form')
+var $input = doc.getElementById('in')
+var $options = doc.getElementById('options')
+var $output = doc.getElementById('out')
+var $current = doc.getElementById('current')
 
-var value = 'To be or not to 🐝, that is the ❓';
-var defaults = ['apple', 'google', 'facebook', 'twitter'];
+var value = 'To be or not to 🐝, that is the ❓'
+var defaults = ['apple', 'google', 'facebook', 'twitter']
 
-Object.keys(platforms).forEach(each);
+Object.keys(platforms).forEach(each)
 
-$form.addEventListener('submit', onsubmit);
-$input.addEventListener('input', debounce(onchange, 200));
+$form.addEventListener('submit', onsubmit)
+$input.addEventListener('input', debounce(onchange, 200))
 
-onchange();
+onchange()
 
-(function () {
-  var index = -1;
+init()
 
-  $input.value = '';
+function init() {
+  var index = -1
 
-  tick();
+  $input.value = ''
+
+  tick()
 
   function tick() {
-    var char = value.charAt(++index);
+    var char = value.charAt(++index)
 
     if (char) {
-      $input.value += char;
-      onchange();
+      $input.value += char
+      onchange()
 
-      setTimeout(tick, 100);
+      setTimeout(tick, 100)
     }
   }
-})();
+}
 
 function each(platform) {
-  var $label = doc.createElement('label');
-  var $check = $label.appendChild(doc.createElement('input'));
+  var $label = doc.createElement('label')
+  var $check = $label.appendChild(doc.createElement('input'))
 
-  $check.checked = defaults.indexOf(platform) !== -1;
-  $check.type = 'checkbox';
-  $check.name = 'platform';
-  $check.id = platform;
-  $check.addEventListener('change', onchange);
+  $check.checked = defaults.indexOf(platform) !== -1
+  $check.type = 'checkbox'
+  $check.name = 'platform'
+  $check.id = platform
+  $check.addEventListener('change', onchange)
 
-  $label.appendChild(doc.createTextNode(platforms[platform]));
-  $options.appendChild($label);
+  $label.appendChild(doc.createTextNode(platforms[platform]))
+  $options.appendChild($label)
 }
 
 function onchange() {
-  var $head = $output.lastChild;
+  var $head = $output.lastChild
 
   while ($head) {
     if ($head === $current) {
-      break;
+      break
     }
 
-    $head.remove();
-    $head = $output.lastChild;
+    $head.remove()
+    $head = $output.lastChild
   }
 
-  $current.textContent = $input.value;
+  $current.textContent = $input.value
 
-  Object.keys(platforms).forEach(add);
+  Object.keys(platforms).forEach(add)
 }
 
 function onsubmit(ev) {
-  onchange();
-  ev.preventDefault();
+  onchange()
+  ev.preventDefault()
 }
 
 function add(pid) {
-  var $check = doc.getElementById(pid);
-  var value = $input.value;
-  var lastIndex = 0;
-  var $dd;
-  var $img;
-  var match;
-  var emoji;
-  var info;
+  var $check = doc.getElementById(pid)
+  var value = $input.value
+  var lastIndex = 0
+  var $dd
+  var $img
+  var match
+  var emoji
+  var info
 
   if (!$check.checked) {
-    return;
+    return
   }
 
-  $dd = doc.createElement('dd');
+  $dd = doc.createElement('dd')
 
   // eslint-disable-next-line no-cond-assign
-  while (match = regex.exec(value)) {
-    emoji = match[0];
-    info = data[emoji];
+  while ((match = regex.exec(value))) {
+    emoji = match[0]
+    info = data[emoji]
 
     if (lastIndex !== regex.lastIndex - emoji.length) {
-      $dd.appendChild(doc.createTextNode(value.slice(lastIndex, regex.lastIndex - emoji.length)));
+      $dd.appendChild(
+        doc.createTextNode(
+          value.slice(lastIndex, regex.lastIndex - emoji.length)
+        )
+      )
     }
 
-    $img = doc.createElement('img');
+    $img = doc.createElement('img')
 
     if (info) {
-      $img.title = info.title + ' (on ' + platforms[pid] + ')';
-      $img.alt = emoji;
-      $img.src = './image/' + pid + '/' + info.id + '.png';
-      $dd.appendChild($img);
+      $img.title = info.title + ' (on ' + platforms[pid] + ')'
+      $img.alt = emoji
+      $img.src = './image/' + pid + '/' + info.id + '.png'
+      $dd.appendChild($img)
     } else {
-      console.log('else: ', info, emoji);
+      console.log('else: ', info, emoji)
     }
 
-    lastIndex = regex.lastIndex;
+    lastIndex = regex.lastIndex
   }
 
   if (lastIndex !== value.length) {
-    $dd.appendChild(doc.createTextNode(value.slice(lastIndex)));
+    $dd.appendChild(doc.createTextNode(value.slice(lastIndex)))
   }
 
-  $output.appendChild(doc.createElement('dt')).textContent = platforms[pid];
-  $output.appendChild($dd);
+  $output.appendChild(doc.createElement('dt')).textContent = platforms[pid]
+  $output.appendChild($dd)
 
-  regex.lastIndex = 0;
+  regex.lastIndex = 0
 }
