@@ -129,9 +129,9 @@ function onemoji(err, res, body) {
 
       try {
         fs.mkdirSync(dir)
-      } catch (err) {
-        if (err.code !== 'EEXIST') {
-          bail(err)
+      } catch (error) {
+        if (error.code !== 'EEXIST') {
+          bail(error)
         }
       }
     }
