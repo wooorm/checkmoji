@@ -99,6 +99,7 @@ function add(pid) {
   while ((match = regex.exec(value))) {
     emoji = match[0]
     info = data[emoji]
+    console.log('e: ', [emoji], info)
 
     if (lastIndex !== regex.lastIndex - emoji.length) {
       $dd.appendChild(
