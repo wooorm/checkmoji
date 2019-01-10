@@ -46,6 +46,8 @@ var categories = [
   'flags'
 ]
 
+var modifier = /(light|dark|medium(-(light|dark))?)-skin-tone\/$/
+
 /* 🏃‍💨  fetch those categories! */
 categories.forEach(category)
 
@@ -95,13 +97,14 @@ function onemoji(err, res, body) {
   bail(err)
 
   var tree = proc.parse(body)
-  var modifiers = query.selectAll('.modifiers a', tree)
+  var related = query.selectAll('.emoji-list > li > a', tree)
   var emoji = query.select('#emoji-copy', tree).properties.value
   var title = query.select('h1', tree)
+  var id = query
+    .select('[property="og:url"]', tree)
+    .properties.content.slice(1, -1)
   var entry = {
-    id: query
-      .select('[property="og:url"]', tree)
-      .properties.content.slice(1, -1),
+    id: id,
     title: collapse(toString(title.children[title.children.length - 1])).trim(),
     platforms: []
   }
@@ -114,7 +117,12 @@ function onemoji(err, res, body) {
     .selectAll('.vendor-list > ul > li > .vendor-container', tree)
     .forEach(one)
 
-  modifiers.forEach(get)
+  related
+    .filter(function(node) {
+      var url = node.properties.href
+      return url.startsWith('/' + id) && modifier.test(url)
+    })
+    .forEach(get)
 
   function one(node) {
     var platform = collapse(toString(query.select('.vendor-info', node))).trim()
