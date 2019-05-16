@@ -6,11 +6,11 @@ var regex = require('emoji-regex')()
 var data = require('./emoji.json')
 var platforms = require('./platforms.json')
 
-var $form = doc.getElementById('form')
-var $input = doc.getElementById('in')
-var $options = doc.getElementById('options')
-var $output = doc.getElementById('out')
-var $current = doc.getElementById('current')
+var $form = doc.querySelector('#form')
+var $input = doc.querySelector('#in')
+var $options = doc.querySelector('#options')
+var $output = doc.querySelector('#out')
+var $current = doc.querySelector('#current')
 
 var value = 'To be or not to 🐝, that is the ❓'
 var defaults = ['apple', 'google', 'facebook', 'twitter']
@@ -80,7 +80,7 @@ function onsubmit(ev) {
 }
 
 function add(pid) {
-  var $check = doc.getElementById(pid)
+  var $check = doc.querySelector('#' + pid)
   var value = $input.value
   var lastIndex = 0
   var $dd
@@ -95,7 +95,6 @@ function add(pid) {
 
   $dd = doc.createElement('dd')
 
-  // eslint-disable-next-line no-cond-assign
   while ((match = regex.exec(value))) {
     emoji = match[0]
     info = data[emoji]
@@ -116,7 +115,7 @@ function add(pid) {
       $img.src = './image/' + pid + '/' + info.id + '.png'
       $dd.appendChild($img)
     } else {
-      console.log('else: ', info, emoji)
+      console.log('else:', info, emoji)
     }
 
     lastIndex = regex.lastIndex
