@@ -13,28 +13,28 @@ var toString = require('hast-util-to-string')
 var collapse = require('collapse-white-space')
 var debug = require('debug')('build')
 
-/* 😬 emojipedia seems to complain if we open more sockets. */
+// 😬 emojipedia seems to complain if we open more sockets.
 https.globalAgent.maxSockets = 2
 
 var proc = unified().use(html)
 
-/* 🤔 random user agent to keep emojipedia happy. */
+// 🤔 random user agent to keep emojipedia happy.
 var ua = 'Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.1'
 var root = 'https://emojipedia.org'
 
-/* 🤓 places we store emoji info and platforms. */
+// 🤓 places we store emoji info and platforms.
 var data = {}
 var platforms = {}
 
 debug.enabled = true
 
-/* 👍 we save stuff here on exit :hackerman: */
+// 👍 we save stuff here on exit :hackerman:
 process.on('exit', onexit)
 
-/* 🏃🏿‍♀️ Don’t walk into modifiers multiple times. */
+// 🏃🏿‍♀️ Don’t walk into modifiers multiple times.
 var seen = []
 
-/* 📒 Categories on https://emojipedia.org. */
+// 📒 Categories on https://emojipedia.org.
 var categories = [
   'people',
   'nature',
@@ -48,7 +48,7 @@ var categories = [
 
 var modifier = /(light|dark|medium(-(light|dark))?)-skin-tone\/$/
 
-/* 🏃‍💨  fetch those categories! */
+// 🏃‍💨  fetch those categories!
 categories.forEach(category)
 
 function onexit() {
