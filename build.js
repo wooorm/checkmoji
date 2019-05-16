@@ -127,7 +127,7 @@ function onemoji(err, res, body) {
   function one(node) {
     var platform = collapse(toString(query.select('.vendor-info', node))).trim()
     var img = query.select('.vendor-image img', node).properties.src
-    var pid = platform.toLowerCase()
+    var pid = platform.toLowerCase().replace(/\s+/g, '')
     var dir = path.join('src', 'image', pid)
 
     entry.platforms.push(pid)
