@@ -4,9 +4,9 @@
   "license": "MIT",
   "repository": "wooorm/checkmoji",
   "bugs": "https://github.com/wooorm/checkmoji/issues",
-  "author": "Titus Wormer <tituswormer@gmail.com> (http://wooorm.com)",
+  "author": "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
   "contributors": [
-    "Titus Wormer <tituswormer@gmail.com> (http://wooorm.com)"
+    "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)"
   ],
   "dependencies": {},
   "devDependencies": {
