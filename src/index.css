@@ -1,5 +1,6 @@
-html {
-  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Oxygen", "Ubuntu", "Cantarell", "Open Sans", sans-serif;
+:root {
+  color-scheme: light dark;
+  font-family: system-ui;
   background-color: hsl(0, 0%, 95%);
   word-break: break-word;
 }
@@ -25,7 +26,9 @@ main {
   }
 }
 
-main > div { border-radius: inherit; }
+main > div {
+  border-radius: inherit;
+}
 
 .section {
   margin: calc(2em + 2ex) calc(-2em - 2ex);
@@ -61,7 +64,9 @@ main > div { border-radius: inherit; }
   margin-bottom: 0;
 }
 
-.highlight { background-color: hsl(0, 0%, 100%); }
+.highlight {
+  background-color: hsl(0, 0%, 100%);
+}
 
 * {
   line-height: calc(1em + 1ex);
@@ -128,7 +133,7 @@ label {
   margin-right: 1em;
 }
 
-[type=checkbox] {
+[type='checkbox'] {
   margin-right: 0.5em;
 }
 
@@ -164,4 +169,31 @@ dd img {
   vertical-align: text-bottom;
 }
 
-.credits { text-align: center; }
+.credits {
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    background-color: hsl(214, 13%, 7.5%);
+    color: hsl(214, 13%, 95%);
+  }
+
+  main {
+    background-color: hsl(214, 13%, 5%);
+  }
+
+  @media (min-width: 40em) and (min-height: 20em) {
+    main {
+      border-color: hsl(214, 13%, 12.5%);
+    }
+  }
+
+  .highlight {
+    background-color: hsl(214, 13%, 2.5%);
+  }
+
+  .section {
+    border-color: hsl(214, 13%, 12.5%);
+  }
+}
