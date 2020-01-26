@@ -47,7 +47,7 @@ function each(platform) {
   var $label = doc.createElement('label')
   var $check = $label.appendChild(doc.createElement('input'))
 
-  $check.checked = defaults.indexOf(platform) !== -1
+  $check.checked = defaults.includes(platform)
   $check.type = 'checkbox'
   $check.name = 'platform'
   $check.id = platform

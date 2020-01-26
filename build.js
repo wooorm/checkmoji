@@ -83,7 +83,7 @@ function oncategory(err, res, body) {
 function get(node) {
   var id = node.properties.href
 
-  if (seen.indexOf(id) === -1) {
+  if (!seen.includes(id)) {
     seen.push(id)
     setImmediate(go)
   }
