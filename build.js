@@ -62,10 +62,7 @@ function onexit() {
 
 function category(category) {
   request(
-    {
-      url: root + '/' + category + '/',
-      headers: {'User-Agent': ua}
-    },
+    {url: root + '/' + category + '/', headers: {'User-Agent': ua}},
     oncategory
   )
 }
