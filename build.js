@@ -67,7 +67,7 @@ function category(category) {
   )
 }
 
-function oncategory(err, res, body) {
+function oncategory(err, response, body) {
   bail(err)
 
   var tree = proc.parse(body)
@@ -90,7 +90,7 @@ function get(node) {
   }
 }
 
-function onemoji(err, res, body) {
+function onemoji(err, response, body) {
   bail(err)
 
   var tree = proc.parse(body)
@@ -115,7 +115,7 @@ function onemoji(err, res, body) {
     .forEach(one)
 
   related
-    .filter(function(node) {
+    .filter(function (node) {
       var url = node.properties.href
       return url.startsWith('/' + id) && modifier.test(url)
     })
