@@ -49,7 +49,13 @@ var categories = [
 var modifier = /(light|dark|medium(-(light|dark))?)-skin-tone\/$/
 
 // 🏃‍💨  fetch those categories!
-categories.forEach(category)
+var index = -1
+while (++index < categories.length) {
+  request(
+    {url: root + '/' + categories[index] + '/', headers: {'User-Agent': ua}},
+    oncategory
+  )
+}
 
 function onexit() {
   debug('Done! Got %s emoji!', Object.keys(data).length)
@@ -60,21 +66,19 @@ function onexit() {
   )
 }
 
-function category(category) {
-  request(
-    {url: root + '/' + category + '/', headers: {'User-Agent': ua}},
-    oncategory
-  )
-}
-
-function oncategory(err, response, body) {
-  bail(err)
+function oncategory(error, response, body) {
+  bail(error)
 
   var tree = proc.parse(body)
 
   debug('Category: %s', collapse(toString(query.select('h1', tree))).trim())
 
-  query.selectAll('.emoji-list a', tree).forEach(get)
+  var nodes = query.selectAll('.emoji-list a', tree)
+  var index = -1
+
+  while (++index < nodes.length) {
+    get(nodes[index])
+  }
 }
 
 function get(node) {
@@ -90,8 +94,8 @@ function get(node) {
   }
 }
 
-function onemoji(err, response, body) {
-  bail(err)
+function onemoji(error, response, body) {
+  bail(error)
 
   var tree = proc.parse(body)
   var related = query.selectAll('.emoji-list > li > a', tree)
@@ -110,16 +114,26 @@ function onemoji(err, response, body) {
 
   debug('Emoji: %s (%s, %s)', entry.id, emoji, entry.title)
 
-  query
-    .selectAll('.vendor-list > ul > li > .vendor-container', tree)
-    .forEach(one)
+  var nodes = query.selectAll(
+    '.vendor-list > ul > li > .vendor-container',
+    tree
+  )
+  var index = -1
 
-  related
-    .filter(function (node) {
-      var url = node.properties.href
-      return url.startsWith('/' + id) && modifier.test(url)
-    })
-    .forEach(get)
+  while (++index < nodes.length) {
+    one(nodes[index])
+  }
+
+  var rels = related.filter(function (node) {
+    var url = node.properties.href
+    return url.startsWith('/' + id) && modifier.test(url)
+  })
+
+  index = -1
+
+  while (++index < rels.length) {
+    get(rels[index])
+  }
 
   function one(node) {
     var platform = collapse(toString(query.select('.vendor-info', node))).trim()

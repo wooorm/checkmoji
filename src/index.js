@@ -12,10 +12,18 @@ var $options = doc.querySelector('#options')
 var $output = doc.querySelector('#out')
 var $current = doc.querySelector('#current')
 
-var value = 'To be or not to 🐝, that is the ❓'
-var defaults = ['apple', 'google', 'facebook', 'twitter']
+var own = {}.hasOwnProperty
 
-Object.keys(platforms).forEach(each)
+var value = 'To be or not to 🐝, that is the ❓'
+var defaults = new Set(['apple', 'google', 'facebook', 'twitter'])
+
+var key
+
+for (key in platforms) {
+  if (own.call(platforms, key)) {
+    each(key)
+  }
+}
 
 $form.addEventListener('submit', onsubmit)
 $input.addEventListener('input', debounce(onchange, 200))
@@ -47,18 +55,19 @@ function each(platform) {
   var $label = doc.createElement('label')
   var $check = $label.appendChild(doc.createElement('input'))
 
-  $check.checked = defaults.includes(platform)
+  $check.checked = defaults.has(platform)
   $check.type = 'checkbox'
   $check.name = 'platform'
   $check.id = platform
   $check.addEventListener('change', onchange)
 
-  $label.appendChild(doc.createTextNode(platforms[platform]))
-  $options.appendChild($label)
+  $label.append(doc.createTextNode(platforms[platform]))
+  $options.append($label)
 }
 
 function onchange() {
   var $head = $output.lastChild
+  var key
 
   while ($head) {
     if ($head === $current) {
@@ -71,7 +80,11 @@ function onchange() {
 
   $current.textContent = $input.value
 
-  Object.keys(platforms).forEach(add)
+  for (key in platforms) {
+    if (own.call(platforms, key)) {
+      add(key)
+    }
+  }
 }
 
 function onsubmit(ev) {
@@ -100,7 +113,7 @@ function add(pid) {
     info = data[emoji]
 
     if (lastIndex !== regex.lastIndex - emoji.length) {
-      $dd.appendChild(
+      $dd.append(
         doc.createTextNode(
           value.slice(lastIndex, regex.lastIndex - emoji.length)
         )
@@ -113,7 +126,7 @@ function add(pid) {
       $img.title = info.title + ' (on ' + platforms[pid] + ')'
       $img.alt = emoji
       $img.src = './image/' + pid + '/' + info.id + '.png'
-      $dd.appendChild($img)
+      $dd.append($img)
     } else {
       console.log('else:', info, emoji)
     }
@@ -122,11 +135,11 @@ function add(pid) {
   }
 
   if (lastIndex !== value.length) {
-    $dd.appendChild(doc.createTextNode(value.slice(lastIndex)))
+    $dd.append(doc.createTextNode(value.slice(lastIndex)))
   }
 
   $output.appendChild(doc.createElement('dt')).textContent = platforms[pid]
-  $output.appendChild($dd)
+  $output.append($dd)
 
   regex.lastIndex = 0
 }
