@@ -46,6 +46,10 @@ function init() {
       $input.value += char
       onchange()
 
+      // Scroll to end of input (for small screens), and place cursor at end.
+      $input.scrollLeft = $input.scrollWidth
+      $input.setSelectionRange($input.value.length, $input.value.length)
+
       setTimeout(tick, 100)
     }
   }
