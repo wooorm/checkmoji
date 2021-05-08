@@ -8,18 +8,19 @@
   "contributors": [
     "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)"
   ],
+  "type": "module",
   "devDependencies": {
-    "bail": "^1.0.0",
-    "browserify": "^17.0.0",
-    "collapse-white-space": "^1.0.0",
+    "bail": "^2.0.0",
+    "collapse-white-space": "^2.0.0",
     "concat-stream": "^2.0.0",
-    "cssnano": "^4.0.0",
+    "cssnano": "^5.0.0",
     "debounce": "^1.0.0",
     "debug": "^4.0.0",
     "emoji-regex": "^9.0.0",
+    "esbuild": "^0.11.20",
     "global": "^4.0.0",
     "graceful-fs": "^4.0.0",
-    "hast-util-select": "^4.0.0",
+    "hast-util-select": "^5.0.0",
     "hast-util-to-string": "^1.0.0",
     "postcss-cli": "^8.0.0",
     "prettier": "^2.0.0",
@@ -32,13 +33,12 @@
     "request": "^2.0.0",
     "stylelint": "^13.0.0",
     "stylelint-config-standard": "^22.0.0",
-    "tinyify": "^3.0.0",
     "unified": "^9.0.0",
-    "xo": "^0.38.0"
+    "xo": "^0.39.0"
   },
   "scripts": {
     "format": "remark . -qfo && prettier . -w --loglevel warn && xo --fix && stylelint src/index.css --fix",
-    "build:js": "browserify src/ -p tinyify -o dest/index.js",
+    "build:js": "esbuild src/index.js --bundle --minify --target=es6 --outfile=dest/index.nomodule.js && esbuild src/index.js --bundle --minify --target=es2020 --format=esm --outfile=dest/index.module.js",
     "build:css": "postcss src/index.css -o dest/index.css",
     "build:html": "rehype -u preset-minify -u prevent-favicon-request src/index.html -o dest",
     "build:img": "cp -r src/image dest/image",
@@ -61,7 +61,12 @@
     "esnext": false,
     "rules": {
       "unicorn/prefer-dom-node-append": "off"
-    }
+    },
+    "ignore": [
+      "src/image/",
+      "src/emoji.js",
+      "src/platforms.js"
+    ]
   },
   "postcss": {
     "plugins": {

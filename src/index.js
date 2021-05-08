@@ -1,23 +1,23 @@
-'use strict'
+import doc from 'global/document.js'
+import debounce from 'debounce'
+import emojiRegex from 'emoji-regex'
+import {emoji} from './emoji.js'
+import {platforms} from './platforms.js'
 
-var doc = require('global/document')
-var debounce = require('debounce')
-var regex = require('emoji-regex')()
-var data = require('./emoji.json')
-var platforms = require('./platforms.json')
+const regex = emojiRegex()
 
-var $form = doc.querySelector('#form')
-var $input = doc.querySelector('#in')
-var $options = doc.querySelector('#options')
-var $output = doc.querySelector('#out')
-var $current = doc.querySelector('#current')
+const $form = doc.querySelector('#form')
+const $input = doc.querySelector('#in')
+const $options = doc.querySelector('#options')
+const $output = doc.querySelector('#out')
+const $current = doc.querySelector('#current')
 
-var own = {}.hasOwnProperty
+const own = {}.hasOwnProperty
 
-var value = 'To be or not to 🐝, that is the ❓'
-var defaults = new Set(['apple', 'google', 'facebook', 'twitter'])
+const value = 'To be or not to 🐝, that is the ❓'
+const defaults = new Set(['apple', 'google', 'facebook', 'twitter'])
 
-var key
+let key
 
 for (key in platforms) {
   if (own.call(platforms, key)) {
@@ -33,14 +33,14 @@ onchange()
 init()
 
 function init() {
-  var index = -1
+  let index = -1
 
   $input.value = ''
 
   tick()
 
   function tick() {
-    var char = value.charAt(++index)
+    const char = value.charAt(++index)
 
     if (char) {
       $input.value += char
@@ -52,8 +52,8 @@ function init() {
 }
 
 function each(platform) {
-  var $label = doc.createElement('label')
-  var $check = $label.appendChild(doc.createElement('input'))
+  const $label = doc.createElement('label')
+  const $check = $label.appendChild(doc.createElement('input'))
 
   $check.checked = defaults.has(platform)
   $check.type = 'checkbox'
@@ -66,8 +66,8 @@ function each(platform) {
 }
 
 function onchange() {
-  var $head = $output.lastChild
-  var key
+  let $head = $output.lastChild
+  let key
 
   while ($head) {
     if ($head === $current) {
@@ -93,30 +93,27 @@ function onsubmit(ev) {
 }
 
 function add(pid) {
-  var $check = doc.querySelector('#' + pid)
-  var value = $input.value
-  var lastIndex = 0
-  var $dd
-  var $img
-  var match
-  var emoji
-  var info
+  const $check = doc.querySelector('#' + pid)
+  const value = $input.value
+  let lastIndex = 0
+  let $img
+  let match
+  let hit
+  let info
 
   if (!$check.checked) {
     return
   }
 
-  $dd = doc.createElement('dd')
+  const $dd = doc.createElement('dd')
 
   while ((match = regex.exec(value))) {
-    emoji = match[0]
-    info = data[emoji]
+    hit = match[0]
+    info = emoji[hit]
 
-    if (lastIndex !== regex.lastIndex - emoji.length) {
+    if (lastIndex !== regex.lastIndex - hit.length) {
       $dd.append(
-        doc.createTextNode(
-          value.slice(lastIndex, regex.lastIndex - emoji.length)
-        )
+        doc.createTextNode(value.slice(lastIndex, regex.lastIndex - hit.length))
       )
     }
 
@@ -124,11 +121,11 @@ function add(pid) {
 
     if (info) {
       $img.title = info.title + ' (on ' + platforms[pid] + ')'
-      $img.alt = emoji
+      $img.alt = hit
       $img.src = './image/' + pid + '/' + info.id + '.png'
       $dd.append($img)
     } else {
-      console.log('else:', info, emoji)
+      console.log('else:', info, hit)
     }
 
     lastIndex = regex.lastIndex

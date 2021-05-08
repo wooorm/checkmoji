@@ -1,30 +1,30 @@
-'use strict'
+import https from 'https'
+import path from 'path'
+import fs from 'graceful-fs'
+import request from 'request'
+import concat from 'concat-stream'
+import {bail} from 'bail'
+import unified from 'unified'
+import html from 'rehype-parse'
+import {select, selectAll} from 'hast-util-select'
+import toString from 'hast-util-to-string'
+import {collapseWhiteSpace} from 'collapse-white-space'
+import createDebug from 'debug'
 
-var https = require('https')
-var path = require('path')
-var fs = require('graceful-fs')
-var request = require('request')
-var concat = require('concat-stream')
-var bail = require('bail')
-var unified = require('unified')
-var html = require('rehype-parse')
-var query = require('hast-util-select')
-var toString = require('hast-util-to-string')
-var collapse = require('collapse-white-space')
-var debug = require('debug')('build')
+const debug = createDebug('build')
 
 // 😬 emojipedia seems to complain if we open more sockets.
 https.globalAgent.maxSockets = 2
 
-var proc = unified().use(html)
+const proc = unified().use(html)
 
 // 🤔 random user agent to keep emojipedia happy.
-var ua = 'Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.1'
-var root = 'https://emojipedia.org'
+const ua = 'Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.1'
+const root = 'https://emojipedia.org'
 
 // 🤓 places we store emoji info and platforms.
-var data = {}
-var platforms = {}
+const data = {}
+const platforms = {}
 
 debug.enabled = true
 
@@ -32,10 +32,10 @@ debug.enabled = true
 process.on('exit', onexit)
 
 // 🏃🏿‍♀️ Don’t walk into modifiers multiple times.
-var seen = []
+const seen = []
 
 // 📒 Categories on https://emojipedia.org.
-var categories = [
+const categories = [
   'people',
   'nature',
   'food-drink',
@@ -46,10 +46,10 @@ var categories = [
   'flags'
 ]
 
-var modifier = /(light|dark|medium(-(light|dark))?)-skin-tone\/$/
+const modifier = /(light|dark|medium(-(light|dark))?)-skin-tone\/$/
 
 // 🏃‍💨  fetch those categories!
-var index = -1
+let index = -1
 while (++index < categories.length) {
   request(
     {url: root + '/' + categories[index] + '/', headers: {'User-Agent': ua}},
@@ -59,22 +59,25 @@ while (++index < categories.length) {
 
 function onexit() {
   debug('Done! Got %s emoji!', Object.keys(data).length)
-  fs.writeFileSync(path.join('src', 'emoji.json'), JSON.stringify(data) + '\n')
+  fs.writeFileSync(
+    path.join('src', 'emoji.js'),
+    "export const emoji = JSON.parse('" + JSON.stringify(data) + "')\n"
+  )
   fs.writeFileSync(
     path.join('src', 'platforms.json'),
-    JSON.stringify(platforms) + '\n'
+    "export const platforms = JSON.parse('" + JSON.stringify(platforms) + "')\n"
   )
 }
 
 function oncategory(error, response, body) {
   bail(error)
 
-  var tree = proc.parse(body)
+  const tree = proc.parse(body)
 
-  debug('Category: %s', collapse(toString(query.select('h1', tree))).trim())
+  debug('Category: %s', collapseWhiteSpace(toString(select('h1', tree))).trim())
 
-  var nodes = query.selectAll('.emoji-list a', tree)
-  var index = -1
+  const nodes = selectAll('.emoji-list a', tree)
+  let index = -1
 
   while (++index < nodes.length) {
     get(nodes[index])
@@ -82,7 +85,7 @@ function oncategory(error, response, body) {
 }
 
 function get(node) {
-  var id = node.properties.href
+  const id = node.properties.href
 
   if (!seen.includes(id)) {
     seen.push(id)
@@ -97,16 +100,16 @@ function get(node) {
 function onemoji(error, response, body) {
   bail(error)
 
-  var tree = proc.parse(body)
-  var related = query.selectAll('.emoji-list > li > a', tree)
-  var emoji = query.select('#emoji-copy', tree).properties.value
-  var title = query.select('h1', tree)
-  var id = query
-    .select('[property="og:url"]', tree)
-    .properties.content.slice(1, -1)
-  var entry = {
-    id: id,
-    title: collapse(toString(title.children[title.children.length - 1])).trim(),
+  const tree = proc.parse(body)
+  const related = selectAll('.emoji-list > li > a', tree)
+  const emoji = select('#emoji-copy', tree).properties.value
+  const title = select('h1', tree)
+  const id = select('[property="og:url"]', tree).properties.content.slice(1, -1)
+  const entry = {
+    id,
+    title: collapseWhiteSpace(
+      toString(title.children[title.children.length - 1])
+    ).trim(),
     platforms: []
   }
 
@@ -114,20 +117,18 @@ function onemoji(error, response, body) {
 
   debug('Emoji: %s (%s, %s)', entry.id, emoji, entry.title)
 
-  var nodes = query.selectAll(
-    '.vendor-list > ul > li > .vendor-container',
-    tree
-  )
-  var index = -1
+  const nodes = selectAll('.vendor-list > ul > li > .vendor-container', tree)
+  let index = -1
 
   while (++index < nodes.length) {
     one(nodes[index])
   }
 
-  var rels = related.filter(function (node) {
-    var url = node.properties.href
-    return url.startsWith('/' + id) && modifier.test(url)
-  })
+  const rels = related.filter(
+    (node) =>
+      node.properties.href.startsWith('/' + id) &&
+      modifier.test(node.properties.href)
+  )
 
   index = -1
 
@@ -136,10 +137,12 @@ function onemoji(error, response, body) {
   }
 
   function one(node) {
-    var platform = collapse(toString(query.select('.vendor-info', node))).trim()
-    var img = query.select('.vendor-image img', node).properties.src
-    var pid = platform.toLowerCase().replace(/\s+/g, '')
-    var dir = path.join('src', 'image', pid)
+    const platform = collapseWhiteSpace(
+      toString(select('.vendor-info', node))
+    ).trim()
+    const img = select('.vendor-image img', node).properties.src
+    const pid = platform.toLowerCase().replace(/\s+/g, '')
+    const dir = path.join('src', 'image', pid)
 
     entry.platforms.push(pid)
 
@@ -158,7 +161,7 @@ function onemoji(error, response, body) {
     setImmediate(go)
 
     function go() {
-      var fp = path.join(dir, entry.id + '.png')
+      const fp = path.join(dir, entry.id + '.png')
 
       fs.exists(fp, onexists)
 

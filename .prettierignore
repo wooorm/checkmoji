@@ -2,3 +2,6 @@ dest/
 *.html
 *.json
 *.md
+src/image/
+src/emoji.js
+src/platforms.js
