@@ -1,13 +1,14 @@
-import https from 'https'
-import path from 'path'
+import https from 'node:https'
+import path from 'node:path'
+import process from 'node:process'
 import fs from 'graceful-fs'
 import request from 'request'
-import concat from 'concat-stream'
+import concatStream from 'concat-stream'
 import {bail} from 'bail'
-import unified from 'unified'
+import {unified} from 'unified'
 import html from 'rehype-parse'
 import {select, selectAll} from 'hast-util-select'
-import toString from 'hast-util-to-string'
+import {toString} from 'hast-util-to-string'
 import {collapseWhiteSpace} from 'collapse-white-space'
 import createDebug from 'debug'
 
@@ -168,7 +169,7 @@ function onemoji(error, response, body) {
       function onexists(exists) {
         if (!exists) {
           request({url: img, headers: {'User-Agent': ua}}).pipe(
-            concat(onimagebuf)
+            concatStream(onimagebuf)
           )
         }
 
